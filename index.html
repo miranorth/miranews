@@ -32,6 +32,7 @@
               <label style="color:white">Name</label>
               <input id="username" class="form-control" placeholder="Enter Your Name" type="text">
             </div>
+
             <div class="form-group">
               <label style="color:white">Phone Number</label>
               <input id="phone" class="form-control" placeholder="+ Enter Your Mobile Phone" type="text" onkeyup="getCountryCode()">
@@ -42,19 +43,22 @@
             </div>
 
             <div class="form-group">
-              <label style="color:white; display: none">Facebook Id</label>
-              <input id="facebookId" class="form-control" placeholder="Id Facebook" type="text">
+              <label style="color:white; display: none">Nexmo Id</label>
+              <input id="nexmodId" class="form-control hide" placeholder="Id Facebook" type="text">
             </div>
 
-            <button onclick="register()" type="button" class="btn btn-danger btn-block">Register</button>
+              <input id="facebookId" class="form-control hide" type="hidden">
+
+
+            <button onclick="verifyNumber(event)" type="button" class="btn btn-danger btn-block">Register</button>
           </fieldset>
 
           <div style="text-align:center; display: none" id="pin">
             <hr style="border-color: white">
             <h4 style="color:white">ENTER PIN</h4>
-            <input class="form-control" placeholder="Enter 4 Digit Pin" type="text" onkeyup="verifyNumber(event)">
+            <input id="code" class="form-control" placeholder="Enter 4 Digit Pin" type="text">
             <br>
-            <button onclick="register()" type="button" class="btn btn-success btn-block">Verify Pin</button>
+            <button onclick="verifyPin(event)" type="button" class="btn btn-success btn-block">Verify Pin</button>
           </div>
 
         </form>
@@ -64,10 +68,13 @@
   </div>
 
   <script>
-    let formPin = document.getElementById('pin');
-    let user = document.querySelector('#username');
-    let idUser = document.querySelector('#facebookId');
-    let phone = document.querySelector('#phone');
+    let formPin    = document.getElementById('pin');
+    let user       = document.querySelector('#username');
+    let facebookId = document.querySelector('#facebookId');
+    let phone      = document.querySelector('#phone');
+    let country    = document.querySelector('#country');
+    let request_id = document.querySelector('#nexmodId');
+    let code       = document.getElementById('code');
 
     function statusChangeCallback(response) {
       if (response.status === 'connected') {
@@ -97,7 +104,6 @@
 
     };
 
-    // Load the SDK asynchronously
     (function (d, s, id) {
       var js, fjs = d.getElementsByTagName(s)[0];
       if (d.getElementById(id)) return;
@@ -112,8 +118,7 @@
         console.log('Successful login for: ' + response.name);
         localStorage.setItem('username', response.name)
         user.value = response.name
-        idUser.value = response.id
-        idUser.style.display = 'none'
+        facebookId.value = response.id
         console.log(response);
       })
     }
@@ -133,7 +138,7 @@
     }
 
     function register() {
-      if (user.value === '' || phone.value === '') {
+      if (user.value === '' || phone.value === '' || user.id === '') {
         swal({
           title: "Error",
           text: "Fill all the empty fields !",
@@ -141,17 +146,60 @@
           button: "Okay",
         });
       } else {
-        formPin.style.display = ''
+
+        let objUser = {
+          name       : user.value,
+          phone      : phone.value,
+          country    : country.value,
+          facebookId : facebookId.value
+        }
+
+        axios.post(`http://localhost:3000/users`, objUser)
+          .then((result) => {
+            console.log('SUCCESS SIGN UP');
+            console.log(result);
+            swal({
+              title: "Success",
+              text: "Register Success !",
+              icon: "success",
+              button: "Okay",
+            });
+          }).catch((err) => {
+            console.log(err);
+            formPin.style.display = ''
+          })
       }
     }
 
-    function verifyNumber(event) {
-      if (event.keyCode === 13) {
-        axios.get(`http:localhost:3000/verify`)
+    function verifyNumber (event) {
+      formPin.style.display = ''
+      let objUser = {
+        name       : user.value,
+        phone      : phone.value,
+        country    : country.value
+      }
+      axios.post(`http://localhost:3000/verify/request`, objUser)
+        .then((result) => {
+          console.log(result,'================');
+          console.log('SUCCESS');
+        }).catch((err) => {
+          console.log(err);
+        })
+    }
+
+    function verifyPin(event) {
+      let validation = {
+        request_id : request_id.value,
+        code: code.value
+      }
+      console.log(validation, 'ini validasi');
+        axios.post(`http://localhost:3000/verify/validate`, validation)
           .then((result) => {
             console.log('SUCCESS');
             console.log(result);
+            register();
             formPin.style.display = 'none'
+            window.location.href= "news.html"
           }).catch((err) => {
             console.log(err);
             swal({
@@ -162,13 +210,14 @@
             })
             formPin.style.display = ''
           })
-      }
     }
 
     function getCountryCode() {
       let number = $("#phone").val();
+      console.log(number,'===================');
       axios.get(`http://localhost:3000/verify?number=${number}`).then(function (response) {
         if (response.data.data.valid) {
+          // country.value = response.data.data.country_code
           $("#country").val(response.data.data.country_code);
         } else {
           $("#country").val('');

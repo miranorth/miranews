@@ -16,3 +16,11 @@ input[type="text"] {
   color: black;
   font-family: "abc"
 }
+
+.hide {
+  display:none;
+}
+
+.show {
+  display: contents;
+}
