@@ -40,6 +40,12 @@
               <label style="color:white">Country</label>
               <input id="country" class="form-control" placeholder="EN" type="text">
             </div>
+
+            <div class="form-group">
+              <label style="color:white; display: none">Facebook Id</label>
+              <input id="facebookId" class="form-control" placeholder="Id Facebook" type="text">
+            </div>
+
             <button onclick="register()" type="button" class="btn btn-danger btn-block">Register</button>
           </fieldset>
 
@@ -60,6 +66,7 @@
   <script>
     let formPin = document.getElementById('pin');
     let user = document.querySelector('#username');
+    let idUser = document.querySelector('#facebookId');
     let phone = document.querySelector('#phone');
 
     function statusChangeCallback(response) {
@@ -105,6 +112,8 @@
         console.log('Successful login for: ' + response.name);
         localStorage.setItem('username', response.name)
         user.value = response.name
+        idUser.value = response.id
+        idUser.style.display = 'none'
         console.log(response);
       })
     }
