@@ -1,0 +1,33 @@
+@@font-face {
+  font-family: "abc";
+  src: url('exo.otf')
+}
+
+body {
+  background-image: url("https://wallpaperscraft.com/image/sea_lake_island_mountains_118555_1920x1080.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  color: black;
+  font-family: "abc";
+}
+
+input[type="text"] {
+  color: black;
+  font-family: "abc"
+}
+
+.hide {
+  display:none;
+}
+
+.show {
+  display: contents;
+}
+
+#headline-news {
+  font-size: 20px;
+  margin: auto;
+  text-align: justify;
+  padding: 2%;
+}

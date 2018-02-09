@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Facebook Login JavaScript Example</title>
+  <meta charset="UTF-8">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://bootswatch.com/4/lux/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <br>
+  <div class="container" style="width: 100%">
+    <div class="row">
+      <div style="background-color:rgba(0,0,0,0.7);padding: 3%;margin: auto;width: 50%">
+
+        <form style="margin: auto; padding: 2%; width: 100%">
+          <fieldset>
+            <br>
+            <h2 style="color: white;text-align:center;letter-spacing:3px">MIRANORTH</h2>
+            <div class="form-group row">
+              <div class="col-sm-12">
+                <button type="button" name="button" class="btn btn-info btn-block" onclick="FBLogin()">Log In With Facebook</button>
+                <br>
+              </div>
+              <label style="margin: auto;color: white; font-size: 17px">or</label>
+            </div>
+            <div class="form-group">
+              <label style="color:white">Name</label>
+              <input id="username" class="form-control" placeholder="Enter Your Name" type="text">
+            </div>
+
+            <input id="facebookId" class="form-control hide" type="text">
+
+            <div class="form-group">
+              <label style="color:white">Phone Number</label>
+              <input id="phone" class="form-control" placeholder="+ Enter Your Mobile Phone" type="text" onkeyup="getCountryCode()">
+            </div>
+            <div class="form-group">
+              <label style="color:white">Country</label>
+              <input id="country" class="form-control" placeholder="EN" type="text">
+            </div>
+
+            <div class="form-group">
+              <label style="color:white;">Nexmo Id</label>
+              <input id="nexmodId" class="form-control hide" placeholder="request id" type="text">
+            </div>
+
+
+
+            <button onclick="verifyNumber(event)" type="button" class="btn btn-danger btn-block">Register</button>
+          </fieldset>
+
+          <div style="text-align:center; display: none" id="pin">
+            <hr style="border-color: white">
+            <h4 style="color:white">ENTER PIN</h4>
+            <input id="code" class="form-control" placeholder="Enter 4 Digit Pin" type="text">
+            <br>
+            <button onclick="verifyPin(event)" type="button" class="btn btn-success btn-block">Verify Pin</button>
+          </div>
+
+        </form>
+        <br>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let formPin    = document.getElementById('pin');
+    let user       = document.querySelector('#username');
+    let facebookId = document.querySelector('#facebookId');
+    let phone      = document.querySelector('#phone');
+    let country    = document.querySelector('#country');
+    let request_id = document.querySelector('#nexmodId');
+    let code       = document.getElementById('code');
+
+    function statusChangeCallback(response) {
+      if (response.status === 'connected') {
+        testAPI();
+      } else {
+        user.value = ''
+      }
+    }
+
+    function checkLoginState() {
+      FB.getLoginStatus(function (response) {
+        statusChangeCallback(response);
+      })
+    }
+
+    window.fbAsyncInit = function () {
+      FB.init({
+        appId: '378772659258864',
+        cookie: true,
+        xfbml: true,
+        version: 'v2.8'
+      })
+
+      FB.getLoginStatus(function (response) {
+        statusChangeCallback(response);
+      });
+
+    };
+
+    (function (d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s);
+      js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    function testAPI() {
+      FB.api('/me', function (response) {
+        console.log('Successful login for: ' + response.name);
+        localStorage.setItem('username', response.name)
+        localStorage.setItem('facebookId', response.id)
+        user.value = response.name
+        facebookId.value = response.id
+        console.log(response);
+      })
+    }
+
+    function FBLogin() {
+      FB.login(function (response) {
+        console.log('FB Login Response ', response.status)
+        if (response.authResponse) {
+          localStorage.setItem('access_token', response.authResponse.accessToken)
+          window.location.href = "index.html"
+        } else {
+          console.log('User did not login !');
+        }
+      }, {
+        scope: 'public_profile,email,publish_actions,user_posts'
+      });
+    }
+
+    function register() {
+      if (user.value === '' || phone.value === '' || user.id === '') {
+        swal({
+          title: "Error",
+          text: "Fill all the empty fields !",
+          icon: "warning",
+          button: "Okay",
+        });
+      } else {
+
+        let objUser = {
+          name       : user.value,
+          phone      : phone.value,
+          country    : country.value,
+          facebookId : facebookId.value
+        }
+
+        axios.post(`http://localhost:3000/users`, objUser)
+          .then((result) => {
+            console.log('SUCCESS SIGN UP');
+            console.log(result);
+            swal({
+              title: "Success",
+              text: "Register Success !",
+              icon: "success",
+              button: "Okay",
+            });
+          }).catch((err) => {
+            console.log(err);
+            formPin.style.display = ''
+          })
+      }
+    }
+
+    function verifyNumber (event) {
+      formPin.style.display = ''
+      let objUser = {
+        name       : user.value,
+        phone      : phone.value,
+        country    : country.value
+      }
+      axios.post(`http://localhost:3000/verify/request`, objUser)
+        .then((result) => {
+          console.log(result,'================');
+          console.log('SUCCESS');
+          request_id.value = result.data.data.request_id
+        }).catch((err) => {
+          console.log(err);
+        })
+    }
+
+    function verifyPin(event) {
+      let validation = {
+        request_id : request_id.value,
+        code: code.value
+      }
+      console.log(validation, 'ini validasi');
+        axios.post(`http://localhost:3000/verify/validate`, validation)
+          .then((result) => {
+            console.log('SUCCESS');
+            console.log(result);
+            register();
+            formPin.style.display = 'none'
+            window.location.href= "news.html"
+          }).catch((err) => {
+            console.log(err);
+            swal({
+              title: "Error",
+              text: "Your Pin did not match !",
+              icon: "warning",
+              button: "Try Again",
+            })
+            formPin.style.display = ''
+          })
+    }
+
+    function getCountryCode() {
+      let number = $("#phone").val();
+      console.log(number,'===================');
+      axios.get(`http://localhost:3000/verify?number=${number}`).then(function (response) {
+        if (response.data.data.valid) {
+          // country.value = response.data.data.country_code
+          $("#country").val(response.data.data.country_code);
+        } else {
+          $("#country").val('');
+        }
+      }).catch(function (error) {
+        console.error(error);
+      });
+    }
+  </script>
+
+</body>
+
+</html>
