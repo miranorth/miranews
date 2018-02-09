@@ -1,0 +1,77 @@
+<html>
+
+<head>
+    <title>News</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div>
+        <input type="text" id="q">
+        <button id="search">Seacrh</button>
+    </div>
+    <div id="headline-news"></div>
+    <script>
+        $(document).ready(() => {
+            /*
+                Get country code here
+            */
+            let country = 'id';
+            let url = 'http://localhost:3000/news?country=' + country;
+            axios.get(url)
+                .then(response => {
+                    response.data.response.articles.forEach(article => {
+                        $('#headline-news').append(
+                            "<div class=article>" +
+                            "<h1>" +
+                            article.title +
+                            "</h1>" +
+                            "<h3>" +
+                            article.author +
+                            "</h3>" +
+                            "<p>" +
+                            article.description +
+                            "</p>" +
+                            "<a href=" + article.url + ">Source</a>" +
+                            "</div>"
+                        );
+                    });
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        });
+
+        $('#search').click(() => {
+            let country = 'id';
+            let q = $('#q').val();
+            let url = `http://localhost:3000/news/search?country=${country}&q=${q}`;
+            axios.get(url)
+                .then(response => {
+                    $('#headline-news').html('');
+                    response.data.response.articles.forEach(article => {
+                        $('#headline-news').append(
+                            "<div class=article>" +
+                            "<h1>" +
+                            article.title +
+                            "</h1>" +
+                            "<h3>" +
+                            article.author +
+                            "</h3>" +
+                            "<p>" +
+                            article.description +
+                            "</p>" +
+                            "<a href=" + article.url + ">Source</a>" +
+                            "</div>"
+                        );
+                    });
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        })
+    </script>
+</body>
+
+</html>
