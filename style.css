@@ -24,3 +24,10 @@ input[type="text"] {
 .show {
   display: contents;
 }
+
+#headline-news {
+  font-size: 20px;
+  margin: auto;
+  text-align: justify;
+  padding: 2%;
+}

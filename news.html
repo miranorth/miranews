@@ -4,14 +4,27 @@
     <title>News</title>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://bootswatch.com/4/lux/bootstrap.min.css">
 </head>
 
-<body>
-    <div>
-        <input type="text" id="q">
-        <button id="search">Search</button>
+<body style="background-color:azure;color:black">
+  <br><br>
+  <div class="container">
+    <div class="row">
+      <div style="width: 100%">
+        <h1 style="text-align: center">Search News</h1>
+        <div style="margin: auto;text-align: center">
+          <input style="width: 80%;text-align:center;padding: 0.8%" type="text" id="q">
+          <button id="search" class="btn btn-info">Search</button>
+        </div>
+      </div>
+      <div style="padding: 2%; width: 90%;margin: auto">
+        <div id="headline-news"></div>
+        
+      </div>
     </div>
-    <div id="headline-news"></div>
+  </div>
+  
     <script>
         $(document).ready(() => {
           let getId= localStorage.getItem('facebookId')
@@ -36,6 +49,7 @@
                   article.description +
                   "</p>" +
                   "<a href=" + article.url + ">Source</a>" +
+                  "<hr style=border-width: 10px;border-style: solid;border-color: black>" +
                   "</div>"
                 );
               });
@@ -73,7 +87,8 @@
                   "<p>" +
                   article.description +
                   "</p>" +
-                  "<a href=" + article.url + ">Source</a>" +
+                  `<a href="${article.url}">Source</a>` +
+                  "<hr style=border-width: 10px;border-style: solid;border-color: black>" +
                   "</div>"
                 );
               });
