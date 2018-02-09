@@ -9,68 +9,94 @@
 <body>
     <div>
         <input type="text" id="q">
-        <button id="search">Seacrh</button>
+        <button id="search">Search</button>
     </div>
     <div id="headline-news"></div>
     <script>
         $(document).ready(() => {
-            /*
-                Get country code here
-            */
-            let country = 'id';
+          let getId= localStorage.getItem('facebookId')
+          console.log(getId, '<< fbid')
+          axios.get(`http://localhost:3000/users/${getId}`)
+          .then((result) => {
+            console.log(result)
+            let country = result.data.data.country;
             let url = 'http://localhost:3000/news?country=' + country;
             axios.get(url)
-                .then(response => {
-                    response.data.response.articles.forEach(article => {
-                        $('#headline-news').append(
-                            "<div class=article>" +
-                            "<h1>" +
-                            article.title +
-                            "</h1>" +
-                            "<h3>" +
-                            article.author +
-                            "</h3>" +
-                            "<p>" +
-                            article.description +
-                            "</p>" +
-                            "<a href=" + article.url + ">Source</a>" +
-                            "</div>"
-                        );
-                    });
-                })
-                .catch(error => {
-                    console.error(error);
-                });
+            .then(response => {
+              response.data.response.articles.forEach(article => {
+                $('#headline-news').append(
+                  "<div class=article>" +
+                  "<h1>" +
+                  article.title +
+                  "</h1>" +
+                  "<h3>" +
+                  article.author +
+                  "</h3>" +
+                  "<p>" +
+                  article.description +
+                  "</p>" +
+                  "<a href=" + article.url + ">Source</a>" +
+                  "</div>"
+                );
+              });
+            })
+            .catch(error => {
+              console.error(error);
+            });
+            
+          }).catch((err) => {
+            console.log(err)
+          })
+          
         });
 
         $('#search').click(() => {
-            let country = 'id';
+          let getId= localStorage.getItem('facebookId')
+          console.log(getId, '<< fbid')
+          axios.get(`http://localhost:3000/users/${getId}`)
+          .then((result) => {
+            let country = result.data.data.country;
             let q = $('#q').val();
             let url = `http://localhost:3000/news/search?country=${country}&q=${q}`;
             axios.get(url)
-                .then(response => {
-                    $('#headline-news').html('');
-                    response.data.response.articles.forEach(article => {
-                        $('#headline-news').append(
-                            "<div class=article>" +
-                            "<h1>" +
-                            article.title +
-                            "</h1>" +
-                            "<h3>" +
-                            article.author +
-                            "</h3>" +
-                            "<p>" +
-                            article.description +
-                            "</p>" +
-                            "<a href=" + article.url + ">Source</a>" +
-                            "</div>"
-                        );
-                    });
-                })
-                .catch(error => {
-                    console.error(error);
-                });
+            .then(response => {
+              $('#headline-news').html('');
+              response.data.response.articles.forEach(article => {
+                $('#headline-news').append(
+                  "<div class=article>" +
+                  "<h1>" +
+                  article.title +
+                  "</h1>" +
+                  "<h3>" +
+                  article.author +
+                  "</h3>" +
+                  "<p>" +
+                  article.description +
+                  "</p>" +
+                  "<a href=" + article.url + ">Source</a>" +
+                  "</div>"
+                );
+              });
+            })
+            .catch(error => {
+              console.error(error);
+            });
+          }).catch((err) => {
+            console.log(err)
+          })
         })
+        
+        function getOneUser(){
+          let getId= localStorage.getItem('facebookId')
+          console.log(getId, '<< fbid')
+          axios.get(`http://localhost:3000/users/${getId}`)
+          .then((result) => {
+            console.log(result)
+            
+          }).catch((err) => {
+            console.log(err)
+          })
+        }
     </script>
 </body>
 
